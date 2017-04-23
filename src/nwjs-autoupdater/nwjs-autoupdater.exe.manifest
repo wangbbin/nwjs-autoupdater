@@ -3,10 +3,10 @@
 <assemblyIdentity
     version="1.0.0.0"
     processorArchitecture="x86"
-    name="nwjs-autoupdater.exe"
+    name="updater.exe"
     type="win32"
 />
-<description>NWJS Autoupdater</description>
+<description>VNPC Updater</description>
 <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
     <security>
         <requestedPrivileges>
@@ -14,4 +14,4 @@
         </requestedPrivileges>
     </security>
 </trustInfo>
-</assembly>
+</assembly> 
