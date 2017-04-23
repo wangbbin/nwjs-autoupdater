@@ -6,8 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"os/exec"
 	"nwjs-autoupdater/updater"
+	"github.com/skratchdot/open-golang/open"
+
+	 "fmt"
 )
 
 func main() {
@@ -34,9 +36,10 @@ func main() {
 		logger.Fatal(err)
 	}
 	
-	cmd := exec.Command(appExec)
-	err = cmd.Start()
-	if err != nil {
-	    log.Fatal(err)
-	}
+	fmt.Printf(bundle + "\n")
+	fmt.Printf(instDir + "\n")
+	fmt.Printf(appExec + "\n")
+
+	open.Start(appExec)
+
 }
