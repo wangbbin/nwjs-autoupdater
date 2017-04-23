@@ -24,7 +24,19 @@ func Update(bundle, instDir, appName string) (error, string) {
 
 	err = filepath.Walk(extractDir, func(path string, f os.FileInfo, err error) error {
 			if(!f.IsDir()) {
-				return os.Rename(path, instDir + "\\" + f.Name())
+				newFile := path
+				fileToReplace := instDir + "\\" + f.Name()
+				fileToReplaceBackup := fileToReplace + ".bak"
+
+				err := os.Rename(fileToReplace, fileToReplaceBackup)
+				if err != nil {
+					return err
+				}
+				err = os.Rename(newFile, fileToReplace)
+				if err != nil {
+					return err
+				}
+				os.Remove(fileToReplaceBackup)
 			}
 			return nil
 	})
