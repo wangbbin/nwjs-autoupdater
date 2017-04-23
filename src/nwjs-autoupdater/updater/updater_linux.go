@@ -9,39 +9,46 @@ import (
 
 func Update(bundle, instDir, appName string) (error, string) {
 
-  appExec := filepath.Join(instDir, appName)
-  appDir := appExec
-  appBak := appExec + ".bak"
+	extractDir := "./files";
 
-  err := archiver.Zip.Open(bundle, ".")
+	appExecName := appName
+  	appExec := filepath.Join(instDir, appExecName)
+
+  	err := archiver.Zip.Open(bundle, extractDir)
+
+	err = filepath.Walk(extractDir, func(path string, f os.FileInfo, err error) error {
+		if(!f.IsDir()) {
+			newFile := path
+			fileToReplace := instDir + "/" + f.Name()
+			fileToReplaceBackup := fileToReplace + ".bak"
+			bakFileCreated := false
+
+			// Append ".bak" on file to be replaced (if it exist)
+			if _, err := os.Stat(fileToReplace); err == nil {
+				err := os.Rename(fileToReplace, fileToReplaceBackup)
+				bakFileCreated = true
+				if err != nil {
+					return err
+				}
+			}
+
+			// Move the new file to replace the old file
+			err = os.Rename(newFile, fileToReplace)
+			if err != nil {
+				return err
+			}
+
+			if(bakFileCreated) {
+				os.Remove(fileToReplaceBackup)
+			}
+		}
+		return nil
+	})
+
+
 	if err != nil {
 		return err, appExec
 	}
-
-  err = os.Rename(appDir, appBak)
-  if err != nil {
-    return err, appExec
-  }
-
-  updateFiles := filepath.Join(".", appName)
-
-  err = os.Rename(updateFiles, appExec)
-  if err != nil {
-    os.RemoveAll(appExec)
-    os.Rename(appBak, appExec)
-
-    return err, appExec
-  }
-
-  err = os.RemoveAll(appBak)
-  if err != nil {
-    return err, appExec
-  }
-
-  err = os.RemoveAll(bundle)
-  if err != nil {
-    return err, appExec
-  }
 
   return nil, appExec
 }
