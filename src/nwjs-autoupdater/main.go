@@ -7,9 +7,6 @@ import (
 	"path/filepath"
 
 	"nwjs-autoupdater/updater"
-	"github.com/skratchdot/open-golang/open"
-
-	 "fmt"
 )
 
 func main() {
@@ -30,16 +27,9 @@ func main() {
 
 	logger := log.New(logfile, "", log.LstdFlags)
 
-	var appExec string;
-	err, appExec = updater.Update(bundle, instDir, appName)
+
+	err, _ = updater.Update(bundle, instDir, appName)
 	if err != nil {
 		logger.Fatal(err)
 	}
-	
-	fmt.Printf(bundle + "\n")
-	fmt.Printf(instDir + "\n")
-	fmt.Printf(appExec + "\n")
-
-	open.Start(appExec)
-
 }

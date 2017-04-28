@@ -2,6 +2,7 @@ package updater
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"github.com/mholt/archiver"
 )
@@ -71,6 +72,12 @@ func Update(bundle, instDir, appName string) (error, string) {
 		return err, appExec
 	}
 	err = os.RemoveAll(bundle)
+	if err != nil {
+		return err, appExec
+	}
+
+	cmd := exec.Command(appExec)
+	err = cmd.Start()
 	if err != nil {
 		return err, appExec
 	}

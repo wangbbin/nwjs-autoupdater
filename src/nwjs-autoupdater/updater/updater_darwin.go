@@ -7,6 +7,8 @@ import (
 
   xattr "github.com/ivaxer/go-xattr"
   "github.com/mholt/archiver"
+
+  "github.com/skratchdot/open-golang/open"
 )
 
 // Update ...
@@ -62,6 +64,8 @@ func Update(bundle, instDir, appName string) (error, string) {
   if err != nil {
     return err, appExec
   }
+
+  open.Start(appExec)
 
   return nil, appExec
 }
