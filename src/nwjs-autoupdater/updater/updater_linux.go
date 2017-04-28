@@ -3,7 +3,6 @@ package updater
 import (
 	"os"
 	"path/filepath"
-
 	"github.com/mholt/archiver"
 )
 
@@ -17,32 +16,44 @@ func Update(bundle, instDir, appName string) (error, string) {
   	err := archiver.Zip.Open(bundle, extractDir)
 
 	err = filepath.Walk(extractDir, func(path string, f os.FileInfo, err error) error {
-		if(!f.IsDir()) {
-			newFile := path
-			fileToReplace := instDir + "/" + f.Name()
-			fileToReplaceBackup := fileToReplace + ".bak"
-			bakFileCreated := false
-
-			// Append ".bak" on file to be replaced (if it exist)
-			if _, err := os.Stat(fileToReplace); err == nil {
-				err := os.Rename(fileToReplace, fileToReplaceBackup)
-				bakFileCreated = true
+			if(!f.IsDir()) {
+				extractedFile := path
+				relExtractDir, err := filepath.Rel(extractDir, path)	// remove "./files/" from path
+				instDirSubdir := filepath.Join(instDir, relExtractDir)	// installation sub-directory for the file
 				if err != nil {
 					return err
 				}
-			}
+				
+				oldFileToReplace := instDir + "\\" + relExtractDir
+				
+				
+				// Make sure the subdirectory/subdirectories (if any) for the new file exist 
+				if _, err = os.Stat(instDirSubdir); os.IsNotExist(err) {
+					os.MkdirAll(instDirSubdir, 0777)
+				}
 
-			// Move the new file to replace the old file
-			err = os.Rename(newFile, fileToReplace)
-			if err != nil {
-				return err
-			}
+				// If the extracted file exist in the installation, rename it to end with .bak
+				oldFileBackup := ""
+				if _, err = os.Stat(oldFileToReplace); err == nil {
+					oldFileBackup = oldFileToReplace + ".bak"
+					err = os.Rename(oldFileToReplace, oldFileBackup)
+					if err != nil {
+						return err
+					}
+				}
 
-			if(bakFileCreated) {
-				os.Remove(fileToReplaceBackup)
+				// Move the extracted file to instdir
+				err = os.Rename(extractedFile, oldFileToReplace)
+				if err != nil {
+					return err
+				}
+
+				// Remove the .bak-file
+				if oldFileBackup != "" {
+					os.Remove(oldFileBackup)
+				}
 			}
-		}
-		return nil
+			return nil
 	})
 
 
