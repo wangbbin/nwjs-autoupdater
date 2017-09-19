@@ -17,26 +17,29 @@ func Update(bundle, instDir, appName string) (error, string) {
 	appExecName := appName
   	appExec := filepath.Join(instDir, appExecName)
 
-  	err := archiver.Zip.Open(bundle, extractDir)
+  	err := archiver.TarGz.Open(bundle, extractDir)
+	if err != nil {
+		return err, appExec
+	}
 
 	err = filepath.Walk(extractDir, func(path string, f os.FileInfo, err error) error {
 		if(!f.IsDir()) {
 			extractedFile := path
 
 			// Remove "./files/" from path
-			relExtractPath, err := filepath.Rel(extractDir, extractedFile)	
+			relExtractPath, err := filepath.Rel(extractDir, extractedFile)
 
 			// Remove filename from path
-			relExtractDir := filepath.Dir(relExtractPath)	
+			relExtractDir := filepath.Dir(relExtractPath)
 
-			// Installation sub-directory for the file			
-			instDirSubdir := filepath.Join(instDir, relExtractDir)			
+			// Installation sub-directory for the file
+			instDirSubdir := filepath.Join(instDir, relExtractDir)
 			if err != nil {
 				return err
 			}
 			
 			// Full installation path of the new file
-			newFileInstPath := filepath.Join(instDir, relExtractPath)		
+			newFileInstPath := filepath.Join(instDir, relExtractPath)
 
 			// Make sure the subdirectory/subdirectories (if any) for the new file exist 
 			if _, err = os.Stat(instDirSubdir); os.IsNotExist(err) {
@@ -61,7 +64,10 @@ func Update(bundle, instDir, appName string) (error, string) {
 
 			// Remove the .bak-file
 			if oldFileBackup != "" {
-				os.Remove(oldFileBackup)
+				err = os.Remove(oldFileBackup)
+				if err != nil {
+					return err
+				}
 			}
 		}
 		return nil

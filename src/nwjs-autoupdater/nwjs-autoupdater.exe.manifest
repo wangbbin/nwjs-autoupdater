@@ -6,7 +6,7 @@
     name="updater.exe"
     type="win32"
 />
-<description>VNPC Updater</description>
+<description>Updater</description>
 <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
     <security>
         <requestedPrivileges>
