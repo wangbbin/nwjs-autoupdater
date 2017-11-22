@@ -60,17 +60,27 @@ func Update(bundle, instDir, appName string) (error, string) {
 		}
 		return nil
 	})
+	if err != nil {
+		start(appExec)
+		return err, appExec
+	}
 
 	err = os.RemoveAll(extractDir)
 	if err != nil {
+		start(appExec)
 		return err, appExec
 	}
 	err = os.RemoveAll(bundle)
 	if err != nil {
+		start(appExec)
 		return err, appExec
 	}
 
-	open.Start(appExec)
+	start(appExec)
 	
 	return nil, appExec
+}
+
+func start(appExec string) {
+	open.Start(appExec)
 }

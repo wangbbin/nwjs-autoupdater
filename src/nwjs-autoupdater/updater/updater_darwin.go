@@ -2,6 +2,7 @@ package updater
 
 import (
 	"os"
+	"strings"
 	"path/filepath"
 	"github.com/mholt/archiver"
 	"github.com/skratchdot/open-golang/open"
@@ -17,8 +18,14 @@ func Update(bundle, instDir, appName string) (error, string) {
 	appExecName := appName + ".app"
 	appExec := filepath.Join(instDir, appExecName)
 
-	err := archiver.TarGz.Open(bundle, extractDir)
+	var err error;
+	if isTarGz(bundle) {
+		err = archiver.TarGz.Open(bundle, extractDir)
+	} else {
+		err = archiver.Zip.Open(bundle, extractDir)
+	}
 	if err != nil {
+		start(appExec)
 		return err, appExec
 	}
 
@@ -69,13 +76,19 @@ func Update(bundle, instDir, appName string) (error, string) {
 		}
 		return nil
 	})
+	if err != nil {
+		start(appExec)
+		return err, appExec
+	}
 
 	err = os.RemoveAll(extractDir)
 	if err != nil {
+		start(appExec)
 		return err, appExec
 	}
 	err = os.RemoveAll(bundle)
 	if err != nil {
+		start(appExec)
 		return err, appExec
 	}
 
@@ -85,7 +98,15 @@ func Update(bundle, instDir, appName string) (error, string) {
 	  return err, appExec
 	}*/
 
-	open.Start(appExec)
+	start(appExec)
 
 	return nil, appExec
+}
+//simple judgement by suffix
+func isTarGz(filename string) bool {
+	return strings.HasSuffix(strings.ToLower(filename), ".tar.gz")
+}
+
+func start(appExec string) {
+	open.Start(appExec)
 }

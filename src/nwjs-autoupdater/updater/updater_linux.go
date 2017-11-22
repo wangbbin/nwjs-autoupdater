@@ -19,6 +19,7 @@ func Update(bundle, instDir, appName string) (error, string) {
 
   	err := archiver.TarGz.Open(bundle, extractDir)
 	if err != nil {
+		start(appExec)
 		return err, appExec
 	}
 
@@ -72,21 +73,30 @@ func Update(bundle, instDir, appName string) (error, string) {
 		}
 		return nil
 	})
+	if err != nil {
+		start(appExec)
+		return err, appExec
+	}
 
 	err = os.RemoveAll(extractDir)
 	if err != nil {
+		start(appExec)
 		return err, appExec
 	}
 	err = os.RemoveAll(bundle)
 	if err != nil {
-		return err, appExec
-	}
-
-	cmd := exec.Command(appExec)
-	err = cmd.Start()
-	if err != nil {
+		start(appExec)
 		return err, appExec
 	}
 	
+	return start(appExec)
+}
+
+func start(appExec string) (error, string) {
+	cmd := exec.Command(appExec)
+	err := cmd.Start()
+	if err != nil {
+		return err, appExec
+	}
 	return nil, appExec
 }
